@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gaelcraves.project3.GaelCravings_Backend.SmokeTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-11-06T07:27:46.829Z" hostname="Jean-Lucs-MacBook-Pro.local" time="0.007">
+  <properties/>
+  <testcase name="runsInCI()" classname="com.gaelcraves.project3.GaelCravings_Backend.SmokeTest" time="0.007"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
