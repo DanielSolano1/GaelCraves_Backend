@@ -1,21 +1,3 @@
 .gitignore
 
-# Environment files
 .env
-
-# Gradle caches and build output
-/.gradle/
-/build/
-
-# IntelliJ / IDE files
-/.idea/
-*.iml
-
-# VSCode
-/.vscode/
-
-# OS files
-.DS_Store
-
-# Logs
-*.log
