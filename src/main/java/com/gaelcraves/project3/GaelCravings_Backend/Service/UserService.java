@@ -1,5 +1,8 @@
-package com.gaelcraves.project3.GaelCravings_Backend;
+package com.gaelcraves.project3.GaelCravings_Backend.Service;
 
+import com.gaelcraves.project3.GaelCravings_Backend.Entity.User;
+import com.gaelcraves.project3.GaelCravings_Backend.Repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -8,8 +11,9 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository repository) {
+    public UserService(UserRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
     }
     // all of these are queries basically we need for functions
@@ -36,6 +40,7 @@ public class UserService {
             throw new IllegalArgumentException("Email already registered");
         }
         User created = repository.save(user);
+        created.setPassword(passwordEncoder.encode(user.getPassword()));
         return created;
     }
 

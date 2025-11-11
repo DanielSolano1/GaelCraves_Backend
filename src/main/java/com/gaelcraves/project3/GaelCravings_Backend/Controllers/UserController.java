@@ -1,21 +1,22 @@
-package com.gaelcraves.project3.GaelCravings_Backend;
+package com.gaelcraves.project3.GaelCravings_Backend.Controllers;
 
+import com.gaelcraves.project3.GaelCravings_Backend.Entity.User;
+import com.gaelcraves.project3.GaelCravings_Backend.Service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.*;
 
-@CrossOrigin(origins = "*") // allow all frontend access
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
     //The HTTP Request GET POST PUT methods for the users
 
     private final UserService service;
-
 
     public UserController(UserService service) {
         this.service = service;

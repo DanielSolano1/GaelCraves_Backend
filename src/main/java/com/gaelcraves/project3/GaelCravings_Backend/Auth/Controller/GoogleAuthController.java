@@ -1,4 +1,4 @@
-package com.gaelcraves.project3.GaelCravings_Backend;
+package com.gaelcraves.project3.GaelCravings_Backend.Auth.Controller;
 
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
@@ -8,7 +8,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
-@CrossOrigin(origins = "*")
 @RestController
 public class GoogleAuthController {
 
