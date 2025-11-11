@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_URL=jdbc:postgresql://db.cfmztcfqrvinpwxqqwxa.supabase.co:5432/postgres
+      - DB_USER=postgres
+      - DB_PASS=chabyss*
+      - supaURL=https://cfmztcfqrvinpwxqqwxa.supabase.co
+      - supaAPI=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbXp0Y2ZxcnZpbnB3eHFxd3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3NTgzMTksImV4cCI6MjA3NzMzNDMxOX0.6cn2PUaBTK6T9_upcSU-Xg0E3frNG3Ub7uUeFyDIXRM
+      - FRONTEND_ORIGIN=http://localhost:5173
+      - APP_JWT_SECRET=dGVzdC1qd3Qtc2VjcmV0LWtleS1mb3ItZGV2ZWxvcG1lbnQtb25seQ==
+    network_mode: bridge
+    restart: unless-stopped
