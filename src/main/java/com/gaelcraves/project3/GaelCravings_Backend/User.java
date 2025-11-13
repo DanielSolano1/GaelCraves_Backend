@@ -24,6 +24,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // auto-increment PK
     private Integer userId;
 
+    @NotBlank
+    @Column(nullable = false, length = 100)
+    private String firstName;
+
+    @NotBlank
+    @Column(nullable = false, length = 100)
+    private String lastName;
+
     @Email @NotBlank
     @Column(nullable = false, unique = true, length = 255)
     private String email;
@@ -32,13 +40,7 @@ public class User {
     @Column(nullable = false, length = 255)
     private String password;
 
-    @NotBlank
-    @Column(nullable = false, length = 255)
-    private String securityQuestion;
 
-    @NotBlank
-    @Column(nullable = false, length = 255)
-    private String securityAnswer;
 
     public User() {}
 
@@ -66,19 +68,19 @@ public class User {
         this.password = password;
     }
 
-    public String getSecurityQuestion() {
-        return securityQuestion;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setSecurityQuestion(String securityQuestion) {
-        this.securityQuestion = securityQuestion;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public String getSecurityAnswer() {
-        return securityAnswer;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setSecurityAnswer(String securityAnswer) {
-        this.securityAnswer = securityAnswer;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 }

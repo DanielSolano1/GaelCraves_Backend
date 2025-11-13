@@ -75,15 +75,5 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/security-question")
-    public ResponseEntity<?> getSecurityQuestion(@RequestParam String email) {
-        Optional<User> user = service.getUserByEmail(email);
-        if (user.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
 
-        Map<String, String> response = new HashMap<>();
-        response.put("securityQuestion", user.get().getSecurityQuestion());
-        return ResponseEntity.ok(response);
-    }
 }
