@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" tests="22" skipped="0" failures="0" errors="0" timestamp="2025-11-12T00:05:26.712Z" hostname="Mac.lan" time="1.892">
+  <properties/>
+  <testcase name="Should return true when security answer matches" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="1.703"/>
+  <testcase name="Should return user when found by email" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.013"/>
+  <testcase name="Should throw exception when user not found for security answer verification" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.016"/>
+  <testcase name="Should throw exception when password is null" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.018"/>
+  <testcase name="Should return empty when user not found" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.007"/>
+  <testcase name="Should return all users" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.012"/>
+  <testcase name="Should throw exception when email already exists" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.005"/>
+  <testcase name="Should throw exception when resetting password for non-existent user" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.005"/>
+  <testcase name="Should return false when security answer doesn't match" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.004"/>
+  <testcase name="Should return empty when user not found by email" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.009"/>
+  <testcase name="Should return empty list when no users exist" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.005"/>
+  <testcase name="Should return user when email and password match" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.003"/>
+  <testcase name="Should throw exception when password is too short" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.003"/>
+  <testcase name="Should throw exception when new password is null" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.003"/>
+  <testcase name="Should create user with hashed password and security answer" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.009"/>
+  <testcase name="Should delete user when user exists" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.007"/>
+  <testcase name="Should return user when found by ID" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.002"/>
+  <testcase name="Should throw exception when new password is too short" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.004"/>
+  <testcase name="Should return empty when password doesn't match" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.006"/>
+  <testcase name="Should return empty when user not found by ID" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.003"/>
+  <testcase name="Should reset password with valid input" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.006"/>
+  <testcase name="Should throw exception when deleting non-existent user" classname="com.gaelcraves.project3.GaelCravings_Backend.UserServiceTest" time="0.01"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (/Users/iamsergio/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.17.8/f09415827a71be7ed621c7bd02550678f28bc81c/byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+</testsuite>
