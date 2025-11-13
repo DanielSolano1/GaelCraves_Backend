@@ -2,20 +2,18 @@ package com.gaelcraves.project3.GaelCravings_Backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
-@RestController
 public class GaelCravingsBackendApplication {
 
-	@RequestMapping("/")
-	public String home() {
-		return "Hello Docker World";
-	}
+    public static void main(String[] args) {
+        // Load .env file
+        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+        dotenv.entries().forEach(entry ->
+            System.setProperty(entry.getKey(), entry.getValue())
+        );
 
-	public static void main(String[] args) {
-		SpringApplication.run(GaelCravingsBackendApplication.class, args);
-	}
-
+        SpringApplication.run(GaelCravingsBackendApplication.class, args);
+    }
 }

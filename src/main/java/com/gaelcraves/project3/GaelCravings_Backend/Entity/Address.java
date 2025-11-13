@@ -1,4 +1,4 @@
-package com.gaelcraves.project3.GaelCravings_Backend;
+package com.gaelcraves.project3.GaelCravings_Backend.Entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
