@@ -34,8 +34,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsSource()))
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll()   // <— allows ALL requests
-                )
-                .oauth2ResourceServer(oauth2 -> oauth2.disable()); // disable JWT entirely
+                );
 
         return http.build();
     }
