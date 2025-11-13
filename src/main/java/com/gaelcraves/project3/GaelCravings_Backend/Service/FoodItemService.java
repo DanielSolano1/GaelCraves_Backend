@@ -1,5 +1,7 @@
-package com.gaelcraves.project3.GaelCravings_Backend;
+package com.gaelcraves.project3.GaelCravings_Backend.Service;
 
+import com.gaelcraves.project3.GaelCravings_Backend.Entity.FoodItem;
+import com.gaelcraves.project3.GaelCravings_Backend.Repository.FoodItemRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

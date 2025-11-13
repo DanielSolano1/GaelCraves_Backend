@@ -1,5 +1,7 @@
-package com.gaelcraves.project3.GaelCravings_Backend;
+package com.gaelcraves.project3.GaelCravings_Backend.Controllers;
 
+import com.gaelcraves.project3.GaelCravings_Backend.Entity.FoodItem;
+import com.gaelcraves.project3.GaelCravings_Backend.Service.FoodItemService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

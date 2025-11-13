@@ -1,5 +1,7 @@
-package com.gaelcraves.project3.GaelCravings_Backend;
+package com.gaelcraves.project3.GaelCravings_Backend.Controllers;
 
+import com.gaelcraves.project3.GaelCravings_Backend.Entity.Address;
+import com.gaelcraves.project3.GaelCravings_Backend.Service.AddressService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

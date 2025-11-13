@@ -1,5 +1,7 @@
-package com.gaelcraves.project3.GaelCravings_Backend;
+package com.gaelcraves.project3.GaelCravings_Backend.Service;
 
+import com.gaelcraves.project3.GaelCravings_Backend.Entity.Address;
+import com.gaelcraves.project3.GaelCravings_Backend.Repository.AddressRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
