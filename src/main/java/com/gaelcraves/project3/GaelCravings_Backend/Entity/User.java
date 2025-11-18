@@ -1,7 +1,6 @@
 package com.gaelcraves.project3.GaelCravings_Backend.Entity;
 
-
-import com.gaelcraves.project3.GaelCravings_Backend.Service.StrongPassword;
+import com.gaelcraves.project3.GaelCravings_Backend.Tools.StrongPassword;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -10,12 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
-//Layer	        What it does	        When to add methods
-//================================================================================
-//Repository	Talks directly to DB	Only when you need a new query
-//Service	    Business logic(calls repo)	When you need a new logical operation
-//Controller	HTTP endpoint	        When you want to expose something via API
+import java.util.HashSet;
+import java.util.Set;
 
 @Table(
         name = "users",
@@ -28,43 +23,51 @@ import lombok.Setter;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto-increment PK
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userId;
 
-    @NotBlank
+    @NotBlank(message = "First name is required")
     @Column(nullable = false, length = 100)
     private String firstName;
 
-    @NotBlank
+    @NotBlank(message = "Last name is required")
     @Column(nullable = false, length = 100)
     private String lastName;
 
-    @Email @NotBlank
+    @Email
+    @NotBlank(message = "Email is required")
     @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
     @Column(nullable = false, unique = true, length = 255)
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "Password is required")
     @StrongPassword
     @Column(nullable = false, length = 255)
     private String password;
 
-    @Getter
-    @NotBlank
+    @NotBlank(message = "Security question is required")
     @Column(nullable = false)
     private String securityQuestion;
 
-    public void setSecurityQuestion(String securityQuestion) {
-        this.securityQuestion = securityQuestion;
-    }
-
-    public void setSecurityAnswer(String securityAnswer) {
-        this.securityAnswer = securityAnswer;
-    }
-
-    @Getter
-    @NotBlank
+    @NotBlank(message = "Security answer is required")
     @Column(nullable = false, length = 255)
     private String securityAnswer;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<UserRole> userRoles = new HashSet<>();
+
+    public void addRole(Roles role) {
+        UserRole userRole = new UserRole();
+        userRole.setUser(this);
+        userRole.setRole(role);
+        this.userRoles.add(userRole);
+    }
+
+    public Set<String> getRoleNames() {
+        Set<String> roleNames = new HashSet<>();
+        for (UserRole userRole : userRoles) {
+            roleNames.add(userRole.getRole().getRoleName());
+        }
+        return roleNames;
+    }
 }

@@ -31,18 +31,6 @@ public class UserController {
         this.jwtService = jwtService;
     }
 
-    @PostMapping("/generateToken")
-    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
-        );
-        if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(authRequest.getUsername());
-        } else {
-            throw new UsernameNotFoundException("Invalid user request!");
-        }
-    }
-
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> getAllUsers() {
         // Never return passwords or security answers
@@ -83,10 +71,17 @@ public class UserController {
 
             User created = service.createUser(user);
 
+            // Generate JWT token
+            String token = jwtService.generateToken(created.getEmail(), created.getUserId());
+
             // Return safe response
             Map<String, Object> response = Map.of(
                     "userId", created.getUserId(),
                     "email", created.getEmail(),
+                    "firstName", created.getFirstName(),
+                    "lastName", created.getLastName(),
+                    "roles", created.getRoleNames(),
+                    "token", token,
                     "message", "User registered successfully"
             );
 
