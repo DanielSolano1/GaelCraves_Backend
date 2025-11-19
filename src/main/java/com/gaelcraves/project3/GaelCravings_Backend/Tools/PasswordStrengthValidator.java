@@ -1,4 +1,4 @@
-package com.gaelcraves.project3.GaelCravings_Backend.Service;
+package com.gaelcraves.project3.GaelCravings_Backend.Tools;
 
 import com.gaelcraves.project3.GaelCravings_Backend.Tools.StrongPassword;
 import jakarta.validation.ConstraintValidator;

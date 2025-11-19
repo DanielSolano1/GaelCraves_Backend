@@ -1,6 +1,7 @@
 package com.gaelcraves.project3.GaelCravings_Backend.Service;
 
 import com.gaelcraves.project3.GaelCravings_Backend.DTO.OrderItemRequest;
+import com.gaelcraves.project3.GaelCravings_Backend.DTO.OrderStatus;
 import com.gaelcraves.project3.GaelCravings_Backend.Entity.*;
 import com.gaelcraves.project3.GaelCravings_Backend.Repository.*;
 import org.springframework.stereotype.Service;

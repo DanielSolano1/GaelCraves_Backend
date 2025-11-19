@@ -1,4 +1,4 @@
-package com.gaelcraves.project3.GaelCravings_Backend.Entity;
+package com.gaelcraves.project3.GaelCravings_Backend.DTO;
 
 public enum OrderStatus {
     PENDING,

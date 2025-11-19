@@ -97,6 +97,8 @@ public class UserController {
         String email = body.get("email");
         String password = body.get("password");
 
+        System.out.println("🔐 Login attempt for: " + email);
+
         if (email == null || password == null) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Email and password are required"));
@@ -111,11 +113,19 @@ public class UserController {
 
         User user = userOpt.get();
 
-        // Return safe user data
+        String token = jwtService.generateToken(user.getEmail(), user.getUserId());
+
+        // Get role names as a Set<String>
+        Set<String> roleNames = user.getRoleNames();
+
+        // Return safe user data with roles as array
         Map<String, Object> response = Map.of(
                 "userId", user.getUserId(),
                 "email", user.getEmail(),
-                "message", "Login successful"
+                "firstName", user.getFirstName(),
+                "lastName", user.getLastName(),
+                "roles", new ArrayList<>(roleNames), // Convert Set to List
+                "token", token
         );
 
         return ResponseEntity.ok(response);

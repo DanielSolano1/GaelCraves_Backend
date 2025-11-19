@@ -1,16 +1,15 @@
 package com.gaelcraves.project3.GaelCravings_Backend.Entity;
 
-import com.gaelcraves.project3.GaelCravings_Backend.Tools.StrongPassword;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Table(
         name = "users",
@@ -21,29 +20,27 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Integer userId;
 
-    @NotBlank(message = "First name is required")
-    @Column(nullable = false, length = 100)
-    private String firstName;
-
-    @NotBlank(message = "Last name is required")
-    @Column(nullable = false, length = 100)
-    private String lastName;
-
-    @Email
     @NotBlank(message = "Email is required")
-    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
-    @Column(nullable = false, unique = true, length = 255)
+    @Email(message = "Email must be valid")
+    @Column(unique = true, nullable = false, length = 100)
     private String email;
 
     @NotBlank(message = "Password is required")
-    @StrongPassword
     @Column(nullable = false, length = 255)
     private String password;
+
+    @NotBlank(message = "First name is required")
+    @Column(length = 100)
+    private String firstName;
+
+    @NotBlank(message = "Last name is required")
+    @Column(length = 100)
+    private String lastName;
 
     @NotBlank(message = "Security question is required")
     @Column(nullable = false)
@@ -64,10 +61,16 @@ public class User {
     }
 
     public Set<String> getRoleNames() {
-        Set<String> roleNames = new HashSet<>();
-        for (UserRole userRole : userRoles) {
-            roleNames.add(userRole.getRole().getRoleName());
+        if (userRoles == null || userRoles.isEmpty()) {
+            System.out.println("⚠️ No roles found for user: " + email);
+            return Set.of();
         }
+
+        Set<String> roleNames = userRoles.stream()
+                .map(ur -> ur.getRole().getRoleName())
+                .collect(Collectors.toSet());
+
+        System.out.println("📋 Roles for " + email + ": " + roleNames);
         return roleNames;
     }
 }

@@ -1,6 +1,5 @@
 package com.gaelcraves.project3.GaelCravings_Backend.Tools;
 
-import com.gaelcraves.project3.GaelCravings_Backend.Service.PasswordStrengthValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
