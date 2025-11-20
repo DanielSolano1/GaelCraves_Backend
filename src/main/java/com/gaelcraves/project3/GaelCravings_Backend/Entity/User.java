@@ -28,18 +28,26 @@ import lombok.Setter;
 public class User {
 
     @Id
+    @Setter
+    @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY) // auto-increment PK
     private Integer userId;
 
     @NotBlank
+    @Setter
+    @Getter
     @Column(nullable = false, length = 100)
     private String firstName;
 
     @NotBlank
+    @Setter
+    @Getter
     @Column(nullable = false, length = 100)
     private String lastName;
 
     @Email @NotBlank
+    @Setter
+    @Getter
     @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
     @Column(nullable = false, unique = true, length = 255)
     private String email;
@@ -50,6 +58,7 @@ public class User {
     private String password;
 
     @Getter
+    @Setter
     @NotBlank
     @Column(nullable = false)
     private String securityQuestion;
@@ -63,6 +72,7 @@ public class User {
     }
 
     @Getter
+    @Setter
     @NotBlank
     @Column(nullable = false, length = 255)
     private String securityAnswer;
