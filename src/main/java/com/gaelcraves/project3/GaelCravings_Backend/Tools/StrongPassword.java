@@ -1,4 +1,4 @@
-package com.gaelcraves.project3.GaelCravings_Backend.Service;
+package com.gaelcraves.project3.GaelCravings_Backend.Tools;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

@@ -1,7 +1,10 @@
 package com.gaelcraves.project3.GaelCravings_Backend.Service;
 
+import com.gaelcraves.project3.GaelCravings_Backend.Entity.Roles;
 import com.gaelcraves.project3.GaelCravings_Backend.Entity.User;
+import com.gaelcraves.project3.GaelCravings_Backend.Repository.RoleRepository;
 import com.gaelcraves.project3.GaelCravings_Backend.Repository.UserRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +20,13 @@ public class UserService {
 
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
-    public UserService(UserRepository repository, PasswordEncoder passwordEncoder) {
+
+    public UserService(UserRepository repository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
     }
 
     public List<User> getAllUsers() {
@@ -57,6 +63,7 @@ public class UserService {
         return Optional.empty();
     }
 
+    @Transactional
     public User createUser(@Valid User user) {
         if (repository.existsByEmail(user.getEmail())) {
             throw new IllegalArgumentException("Email already registered");
@@ -67,10 +74,20 @@ public class UserService {
             throw new IllegalArgumentException("Password must be at least 8 characters long");
         }
 
+        // Hash password and security answer
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setSecurityAnswer(passwordEncoder.encode(user.getSecurityAnswer()));
 
-        return repository.save(user);
+        // Assign default "USER" role
+        Roles userRole = roleRepository.findByRoleName("USER")
+                .orElseThrow(() -> new IllegalStateException("Default USER role not found in database"));
+
+        user.addRole(userRole);
+
+        User savedUser = repository.save(user);
+        log.info("User created successfully with ID: {} and role: USER", savedUser.getUserId());
+
+        return savedUser;
     }
 
     public void resetPassword(String email, @Valid String newPassword) {
