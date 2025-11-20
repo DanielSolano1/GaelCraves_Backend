@@ -21,28 +21,37 @@ import java.util.stream.Collectors;
 @Entity
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Setter
+    @Getter
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto-increment PK
     private Integer userId;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid")
-    @Column(unique = true, nullable = false, length = 100)
+    @NotBlank
+    @Setter
+    @Getter
+    @Column(nullable = false, length = 100)
+    private String firstName;
+
+    @NotBlank
+    @Setter
+    @Getter
+    @Column(nullable = false, length = 100)
+    private String lastName;
+
+    @Email @NotBlank
+    @Setter
+    @Getter
+    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
+    @Column(nullable = false, unique = true, length = 255)
     private String email;
 
     @NotBlank(message = "Password is required")
     @Column(nullable = false, length = 255)
     private String password;
 
-    @NotBlank(message = "First name is required")
-    @Column(length = 100)
-    private String firstName;
-
-    @NotBlank(message = "Last name is required")
-    @Column(length = 100)
-    private String lastName;
-
-    @NotBlank(message = "Security question is required")
+    @Getter
+    @Setter
+    @NotBlank
     @Column(nullable = false)
     private String securityQuestion;
 
@@ -60,11 +69,11 @@ public class User {
         this.userRoles.add(userRole);
     }
 
-    public Set<String> getRoleNames() {
-        if (userRoles == null || userRoles.isEmpty()) {
-            System.out.println("⚠️ No roles found for user: " + email);
-            return Set.of();
-        }
+    @Getter
+    @Setter
+    @NotBlank
+    @Column(nullable = false, length = 255)
+    private String securityAnswer;
 
         Set<String> roleNames = userRoles.stream()
                 .map(ur -> ur.getRole().getRoleName())

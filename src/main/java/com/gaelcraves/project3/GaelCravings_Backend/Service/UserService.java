@@ -108,4 +108,53 @@ public class UserService {
         }
         repository.deleteById(id);
     }
+
+    // NEW: Search users by partial name match
+    public List<User> getUsersByName(String firstName) {
+        return repository.findByFirstNameContainingIgnoreCase(firstName);  // ✅
+    }
+    // NEW: Simple boolean check for frontend signup forms
+    public boolean userExistsByEmail(String email) {
+        return repository.existsByEmail(email);
+    }
+
+    // NEW: Combined lookup (email OR ID string)
+    public Optional<User> getUserByEmailOrId(String identifier) {
+        // Try email
+        Optional<User> byEmail = repository.findByEmail(identifier);
+        if (byEmail.isPresent()) return byEmail;
+
+        // Try ID if numeric
+        try {
+            Integer id = Integer.parseInt(identifier);
+            return repository.findById(id);
+        } catch (NumberFormatException ignore) {}
+
+        return Optional.empty();
+    }
+
+    // NEW: Lightweight summary for frontend (no password, no security)
+    public Optional<User> getUserSummary(Integer id) {
+        return repository.findById(id).map(user -> {
+            User summary = new User();
+            summary.setUserId(user.getUserId());
+            summary.setFirstName(user.getFirstName());
+            summary.setEmail(user.getEmail());
+            return summary;
+        });
+    }
+
+    // NEW: Update basic user info (safe for profile editing)
+    public Optional<User> updateUserBasicInfo(Integer id, String name, String email) {
+        Optional<User> userOpt = repository.findById(id);
+        if (userOpt.isEmpty()) return Optional.empty();
+
+        User user = userOpt.get();
+
+        if (name != null && !name.isBlank()) user.setFirstName(name);
+        if (email != null && !email.isBlank()) user.setEmail(email);
+
+        return Optional.of(repository.save(user));
+    }
+
 }
