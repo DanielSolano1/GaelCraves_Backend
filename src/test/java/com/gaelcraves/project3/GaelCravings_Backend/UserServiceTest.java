@@ -1,419 +1,398 @@
 package com.gaelcraves.project3.GaelCravings_Backend;
 
-import com.gaelcraves.project3.GaelCravings_Backend.Entity.User;
-import com.gaelcraves.project3.GaelCravings_Backend.Repository.UserRepository;
-import com.gaelcraves.project3.GaelCravings_Backend.Service.UserService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.DisplayName;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
 
-class UserServiceTest {
+import com.gaelcraves.project3.GaelCravings_Backend.DTO.OrderItemRequest;
+import com.gaelcraves.project3.GaelCravings_Backend.DTO.OrderStatus;
+import com.gaelcraves.project3.GaelCravings_Backend.Entity.FoodItem;
+import com.gaelcraves.project3.GaelCravings_Backend.Entity.Order;
+import com.gaelcraves.project3.GaelCravings_Backend.Entity.OrderItem;
+import com.gaelcraves.project3.GaelCravings_Backend.Entity.User;
+import com.gaelcraves.project3.GaelCravings_Backend.Repository.FoodItemRepository;
+import com.gaelcraves.project3.GaelCravings_Backend.Repository.OrderRepository;
+import com.gaelcraves.project3.GaelCravings_Backend.Repository.UserRepository;
+import com.gaelcraves.project3.GaelCravings_Backend.Service.OrderService;
+
+class OrderServiceTest {
 
     @Mock
-    private UserRepository repository;
+    private OrderRepository orderRepository;
 
     @Mock
-    private PasswordEncoder passwordEncoder;
+    private UserRepository userRepository;
+
+    @Mock
+    private FoodItemRepository foodItemRepository;
 
     @InjectMocks
-    private UserService userService;
+    private OrderService orderService;
 
     private User testUser;
+    private FoodItem testFoodItem;
+    private Order testOrder;
+    private OrderItem testOrderItem;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
+        // Setup test user
         testUser = new User();
         testUser.setUserId(1);
         testUser.setEmail("test@example.com");
-        testUser.setPassword("password123");
-        testUser.setSecurityQuestion("What is your pet name?");
-        testUser.setSecurityAnswer("Fluffy");
+
+        // Setup test food item
+        testFoodItem = new FoodItem();
+        testFoodItem.setFoodItemId(1);
+        testFoodItem.setPrice(new BigDecimal("12.99"));
+        testFoodItem.setCalories(500);
+
+        // Setup test order item
+        testOrderItem = new OrderItem();
+        testOrderItem.setOrderItemId(1);
+        testOrderItem.setFoodItem(testFoodItem);
+        testOrderItem.setQuantity(2);
+        testOrderItem.setPrice(new BigDecimal("12.99"));
+
+        // Setup test order
+        testOrder = new Order();
+        testOrder.setOrderId(1);
+        testOrder.setUser(testUser);
+        testOrder.setOrderDate(LocalDateTime.now());
+        testOrder.setStatus(OrderStatus.PENDING);
+        testOrder.setTotalAmount(new BigDecimal("25.98"));
+        testOrder.setOrderItems(new ArrayList<>(List.of(testOrderItem)));
+        testOrderItem.setOrder(testOrder);
     }
 
-    // ============= GET ALL USERS TESTS =============
+    // ============= CREATE ORDER TESTS =============
 
     @Test
-    @DisplayName("Should return all users")
-    void testGetAllUsers() {
+    @DisplayName("Should create order successfully")
+    void testCreateOrderSuccess() {
         // Arrange
-        User user2 = new User();
-        user2.setUserId(2);
-        user2.setEmail("user2@example.com");
+        OrderItemRequest itemRequest = new OrderItemRequest();
+        itemRequest.setFoodItemId(1);
+        itemRequest.setQuantity(2);
+        itemRequest.setSpecialInstructions("No onions");
 
-        List<User> users = Arrays.asList(testUser, user2);
-        when(repository.findAll()).thenReturn(users);
+        when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
+        when(foodItemRepository.findById(1)).thenReturn(Optional.of(testFoodItem));
+        when(orderRepository.save(any(Order.class))).thenReturn(testOrder);
 
         // Act
-        List<User> result = userService.getAllUsers();
-
-        // Assert
-        assertEquals(2, result.size());
-        verify(repository, times(1)).findAll();
-    }
-
-    @Test
-    @DisplayName("Should return empty list when no users exist")
-    void testGetAllUsersEmpty() {
-        // Arrange
-        when(repository.findAll()).thenReturn(Arrays.asList());
-
-        // Act
-        List<User> result = userService.getAllUsers();
-
-        // Assert
-        assertTrue(result.isEmpty());
-        verify(repository, times(1)).findAll();
-    }
-
-    // ============= GET USER BY ID TESTS =============
-
-    @Test
-    @DisplayName("Should return user when found by ID")
-    void testGetUserById() {
-        // Arrange
-        when(repository.findById(1)).thenReturn(Optional.of(testUser));
-
-        // Act
-        Optional<User> result = userService.getUserById(1);
-
-        // Assert
-        assertTrue(result.isPresent());
-        assertEquals("test@example.com", result.get().getEmail());
-        verify(repository, times(1)).findById(1);
-    }
-
-    @Test
-    @DisplayName("Should return empty when user not found by ID")
-    void testGetUserByIdNotFound() {
-        // Arrange
-        when(repository.findById(999)).thenReturn(Optional.empty());
-
-        // Act
-        Optional<User> result = userService.getUserById(999);
-
-        // Assert
-        assertTrue(result.isEmpty());
-        verify(repository, times(1)).findById(999);
-    }
-
-    // ============= GET USER BY EMAIL TESTS =============
-
-    @Test
-    @DisplayName("Should return user when found by email")
-    void testGetUserByEmail() {
-        // Arrange
-        when(repository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
-
-        // Act
-        Optional<User> result = userService.getUserByEmail("test@example.com");
-
-        // Assert
-        assertTrue(result.isPresent());
-        assertEquals("test@example.com", result.get().getEmail());
-        verify(repository, times(1)).findByEmail("test@example.com");
-    }
-
-    @Test
-    @DisplayName("Should return empty when user not found by email")
-    void testGetUserByEmailNotFound() {
-        // Arrange
-        when(repository.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
-
-        // Act
-        Optional<User> result = userService.getUserByEmail("nonexistent@example.com");
-
-        // Assert
-        assertTrue(result.isEmpty());
-        verify(repository, times(1)).findByEmail("nonexistent@example.com");
-    }
-
-    // ============= CREATE USER TESTS =============
-
-    @Test
-    @DisplayName("Should create user with hashed password and security answer")
-    void testCreateUser() {
-        // Arrange
-        when(repository.existsByEmail(testUser.getEmail())).thenReturn(false);
-        when(passwordEncoder.encode(anyString())).thenReturn("hashedPassword");
-        when(repository.save(any(User.class))).thenReturn(testUser);
-
-        // Act
-        User result = userService.createUser(testUser);
+        Order result = orderService.createOrder(1, List.of(itemRequest));
 
         // Assert
         assertNotNull(result);
-        verify(passwordEncoder, times(2)).encode(anyString()); // Once for password, once for security answer
-        verify(repository, times(1)).save(testUser);
+        assertEquals(1, result.getOrderId());
+        assertEquals(OrderStatus.PENDING, result.getStatus());
+        verify(orderRepository, times(1)).save(any(Order.class));
     }
 
     @Test
-    @DisplayName("Should throw exception when email already exists")
-    void testCreateUserEmailExists() {
+    @DisplayName("Should throw exception when user not found during order creation")
+    void testCreateOrderUserNotFound() {
         // Arrange
-        when(repository.existsByEmail(testUser.getEmail())).thenReturn(true);
+        OrderItemRequest itemRequest = new OrderItemRequest();
+        itemRequest.setFoodItemId(1);
+        itemRequest.setQuantity(2);
+
+        when(userRepository.findById(1)).thenReturn(Optional.empty());
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> userService.createUser(testUser)
+                () -> orderService.createOrder(1, List.of(itemRequest))
         );
 
-        assertEquals("Email already registered", exception.getMessage());
-        verify(repository, never()).save(any(User.class));
+        assertEquals("User not found", exception.getMessage());
+        verify(orderRepository, never()).save(any(Order.class));
     }
 
     @Test
-    @DisplayName("Should throw exception when password is too short")
-    void testCreateUserPasswordTooShort() {
+    @DisplayName("Should throw exception when food item not found during order creation")
+    void testCreateOrderFoodItemNotFound() {
         // Arrange
-        testUser.setPassword("short");
-        when(repository.existsByEmail(testUser.getEmail())).thenReturn(false);
+        OrderItemRequest itemRequest = new OrderItemRequest();
+        itemRequest.setFoodItemId(999);
+        itemRequest.setQuantity(2);
+
+        when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
+        when(foodItemRepository.findById(999)).thenReturn(Optional.empty());
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> userService.createUser(testUser)
+                () -> orderService.createOrder(1, List.of(itemRequest))
         );
 
-        assertEquals("Password must be at least 8 characters long", exception.getMessage());
-        verify(repository, never()).save(any(User.class));
+        assertTrue(exception.getMessage().contains("Food item not found"));
+        verify(orderRepository, never()).save(any(Order.class));
     }
 
-    @Test
-    @DisplayName("Should throw exception when password is null")
-    void testCreateUserPasswordNull() {
-        // Arrange
-        testUser.setPassword(null);
-        when(repository.existsByEmail(testUser.getEmail())).thenReturn(false);
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> userService.createUser(testUser)
-        );
-
-        assertEquals("Password must be at least 8 characters long", exception.getMessage());
-        verify(repository, never()).save(any(User.class));
-    }
-
-    // ============= LOGIN (GET USER BY EMAIL AND PASSWORD) TESTS =============
+    // ============= CONFIRM ORDER TESTS =============
 
     @Test
-    @DisplayName("Should return user when email and password match")
-    void testGetUserByEmailAndPasswordSuccess() {
+    @DisplayName("Should confirm order successfully")
+    void testConfirmOrderSuccess() {
         // Arrange
-        String hashedPassword = "$2a$10$hashedPassword";
-        testUser.setPassword(hashedPassword);
-
-        when(repository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
-        when(passwordEncoder.matches("password123", hashedPassword)).thenReturn(true);
+        when(orderRepository.findById(1)).thenReturn(Optional.of(testOrder));
+        when(orderRepository.save(any(Order.class))).thenReturn(testOrder);
 
         // Act
-        Optional<User> result = userService.getUserByEmailAndPassword("test@example.com", "password123");
+        Order result = orderService.confirmOrder(1);
 
         // Assert
-        assertTrue(result.isPresent());
-        assertEquals("test@example.com", result.get().getEmail());
-        verify(passwordEncoder, times(1)).matches("password123", hashedPassword);
+        assertNotNull(result);
+        verify(orderRepository, times(1)).save(any(Order.class));
     }
 
     @Test
-    @DisplayName("Should return empty when password doesn't match")
-    void testGetUserByEmailAndPasswordWrongPassword() {
+    @DisplayName("Should throw exception when confirming non-existent order")
+    void testConfirmOrderNotFound() {
         // Arrange
-        String hashedPassword = "$2a$10$hashedPassword";
-        testUser.setPassword(hashedPassword);
+        when(orderRepository.findById(999)).thenReturn(Optional.empty());
 
-        when(repository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
-        when(passwordEncoder.matches("wrongPassword", hashedPassword)).thenReturn(false);
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> orderService.confirmOrder(999)
+        );
+
+        assertEquals("Order not found", exception.getMessage());
+    }
+
+    // ============= CANCEL ORDER TESTS =============
+
+    @Test
+    @DisplayName("Should cancel order successfully")
+    void testCancelOrderSuccess() {
+        // Arrange
+        when(orderRepository.findById(1)).thenReturn(Optional.of(testOrder));
+        when(orderRepository.save(any(Order.class))).thenReturn(testOrder);
 
         // Act
-        Optional<User> result = userService.getUserByEmailAndPassword("test@example.com", "wrongPassword");
+        Order result = orderService.cancelOrder(1);
+
+        // Assert
+        assertNotNull(result);
+        verify(orderRepository, times(1)).save(any(Order.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when canceling non-existent order")
+    void testCancelOrderNotFound() {
+        // Arrange
+        when(orderRepository.findById(999)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> orderService.cancelOrder(999)
+        );
+
+        assertEquals("Order not found", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when canceling non-cancellable order")
+    void testCancelOrderNotCancellable() {
+        // Arrange
+        testOrder.setStatus(OrderStatus.DELIVERED);
+        when(orderRepository.findById(1)).thenReturn(Optional.of(testOrder));
+
+        // Act & Assert
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> orderService.cancelOrder(1)
+        );
+
+        assertTrue(exception.getMessage().contains("cannot be cancelled"));
+    }
+
+    // ============= UPDATE ITEM QUANTITY TESTS =============
+
+    @Test
+    @DisplayName("Should update item quantity successfully")
+    void testUpdateItemQuantitySuccess() {
+        // Arrange
+        when(orderRepository.findById(1)).thenReturn(Optional.of(testOrder));
+        when(orderRepository.save(any(Order.class))).thenReturn(testOrder);
+
+        // Act
+        Order result = orderService.updateItemQuantity(1, 1, 3);
+
+        // Assert
+        assertNotNull(result);
+        verify(orderRepository, times(1)).save(any(Order.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating quantity for non-existent order")
+    void testUpdateItemQuantityOrderNotFound() {
+        // Arrange
+        when(orderRepository.findById(999)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> orderService.updateItemQuantity(999, 1, 3)
+        );
+
+        assertEquals("Order not found", exception.getMessage());
+    }
+
+    // ============= GET USER ORDERS TESTS =============
+
+    @Test
+    @DisplayName("Should return all orders for a user")
+    void testGetUserOrders() {
+        // Arrange
+        Order order2 = new Order();
+        order2.setOrderId(2);
+        order2.setUser(testUser);
+        order2.setStatus(OrderStatus.CONFIRMED);
+
+        List<Order> orders = Arrays.asList(testOrder, order2);
+        when(orderRepository.findByUser_UserId(1)).thenReturn(orders);
+
+        // Act
+        List<Order> result = orderService.getUserOrders(1);
+
+        // Assert
+        assertEquals(2, result.size());
+        verify(orderRepository, times(1)).findByUser_UserId(1);
+    }
+
+    @Test
+    @DisplayName("Should return empty list when user has no orders")
+    void testGetUserOrdersEmpty() {
+        // Arrange
+        when(orderRepository.findByUser_UserId(1)).thenReturn(new ArrayList<>());
+
+        // Act
+        List<Order> result = orderService.getUserOrders(1);
 
         // Assert
         assertTrue(result.isEmpty());
-        verify(passwordEncoder, times(1)).matches("wrongPassword", hashedPassword);
+        verify(orderRepository, times(1)).findByUser_UserId(1);
     }
 
+    // ============= GET ORDER BY ID TESTS =============
+
     @Test
-    @DisplayName("Should return empty when user not found")
-    void testGetUserByEmailAndPasswordUserNotFound() {
+    @DisplayName("Should return order by ID")
+    void testGetOrderById() {
         // Arrange
-        when(repository.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
+        when(orderRepository.findById(1)).thenReturn(Optional.of(testOrder));
 
         // Act
-        Optional<User> result = userService.getUserByEmailAndPassword("nonexistent@example.com", "password123");
+        Order result = orderService.getOrderById(1);
 
         // Assert
-        assertTrue(result.isEmpty());
-        verify(passwordEncoder, never()).matches(anyString(), anyString());
-    }
-
-    // ============= VERIFY SECURITY ANSWER TESTS =============
-
-    @Test
-    @DisplayName("Should return true when security answer matches")
-    void testVerifySecurityAnswerSuccess() {
-        // Arrange
-        String hashedAnswer = "$2a$10$hashedAnswer";
-        testUser.setSecurityAnswer(hashedAnswer);
-
-        when(repository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
-        when(passwordEncoder.matches("Fluffy", hashedAnswer)).thenReturn(true);
-
-        // Act
-        boolean result = userService.verifySecurityAnswer("test@example.com", "Fluffy");
-
-        // Assert
-        assertTrue(result);
-        verify(passwordEncoder, times(1)).matches("Fluffy", hashedAnswer);
+        assertNotNull(result);
+        assertEquals(1, result.getOrderId());
+        verify(orderRepository, times(1)).findById(1);
     }
 
     @Test
-    @DisplayName("Should return false when security answer doesn't match")
-    void testVerifySecurityAnswerFailed() {
+    @DisplayName("Should throw exception when order not found by ID")
+    void testGetOrderByIdNotFound() {
         // Arrange
-        String hashedAnswer = "$2a$10$hashedAnswer";
-        testUser.setSecurityAnswer(hashedAnswer);
-
-        when(repository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
-        when(passwordEncoder.matches("WrongAnswer", hashedAnswer)).thenReturn(false);
-
-        // Act
-        boolean result = userService.verifySecurityAnswer("test@example.com", "WrongAnswer");
-
-        // Assert
-        assertFalse(result);
-        verify(passwordEncoder, times(1)).matches("WrongAnswer", hashedAnswer);
-    }
-
-    @Test
-    @DisplayName("Should throw exception when user not found for security answer verification")
-    void testVerifySecurityAnswerUserNotFound() {
-        // Arrange
-        when(repository.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
+        when(orderRepository.findById(999)).thenReturn(Optional.empty());
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> userService.verifySecurityAnswer("nonexistent@example.com", "Fluffy")
+                () -> orderService.getOrderById(999)
         );
 
-        assertEquals("User Not Found", exception.getMessage());
-        verify(passwordEncoder, never()).matches(anyString(), anyString());
+        assertEquals("Order not found", exception.getMessage());
     }
 
-    // ============= RESET PASSWORD TESTS =============
+    // ============= GET ORDER TOTAL TESTS =============
 
     @Test
-    @DisplayName("Should reset password with valid input")
-    void testResetPassword() {
+    @DisplayName("Should calculate order total correctly")
+    void testGetOrderTotal() {
         // Arrange
-        when(repository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
-        when(passwordEncoder.encode("newPassword123")).thenReturn("hashedNewPassword");
-        when(repository.save(any(User.class))).thenReturn(testUser);
+        when(orderRepository.findById(1)).thenReturn(Optional.of(testOrder));
 
         // Act
-        userService.resetPassword("test@example.com", "newPassword123");
+        String result = orderService.getOrderTotal(1);
 
         // Assert
-        verify(passwordEncoder, times(1)).encode("newPassword123");
-        verify(repository, times(1)).save(testUser);
+        assertNotNull(result);
+        assertTrue(result.contains("$25.98"));
+        assertTrue(result.contains("2 items"));
+        verify(orderRepository, times(1)).findById(1);
     }
 
     @Test
-    @DisplayName("Should throw exception when resetting password for non-existent user")
-    void testResetPasswordUserNotFound() {
+    @DisplayName("Should throw exception when getting total for non-existent order")
+    void testGetOrderTotalNotFound() {
         // Arrange
-        when(repository.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
+        when(orderRepository.findById(999)).thenReturn(Optional.empty());
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> userService.resetPassword("nonexistent@example.com", "newPassword123")
+                () -> orderService.getOrderTotal(999)
         );
 
-        assertEquals("User not found with email: nonexistent@example.com", exception.getMessage());
-        verify(repository, never()).save(any(User.class));
+        assertEquals("Order not found", exception.getMessage());
     }
 
-    @Test
-    @DisplayName("Should throw exception when new password is too short")
-    void testResetPasswordTooShort() {
-        // Arrange
-        when(repository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> userService.resetPassword("test@example.com", "short")
-        );
-
-        assertEquals("Password must be at least 8 characters long", exception.getMessage());
-        verify(repository, never()).save(any(User.class));
-    }
+    // ============= UPDATE ORDER STATUS TESTS =============
 
     @Test
-    @DisplayName("Should throw exception when new password is null")
-    void testResetPasswordNull() {
+    @DisplayName("Should update order status successfully")
+    void testUpdateOrderStatus() {
         // Arrange
-        when(repository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> userService.resetPassword("test@example.com", null)
-        );
-
-        assertEquals("Password must be at least 8 characters long", exception.getMessage());
-        verify(repository, never()).save(any(User.class));
-    }
-
-    // ============= DELETE USER TESTS =============
-
-    @Test
-    @DisplayName("Should delete user when user exists")
-    void testDeleteUser() {
-        // Arrange
-        when(repository.existsById(1)).thenReturn(true);
-        doNothing().when(repository).deleteById(1);
+        when(orderRepository.findById(1)).thenReturn(Optional.of(testOrder));
 
         // Act
-        userService.deleteUser(1);
+        Order result = orderService.updateOrderStatus(1, "CONFIRMED");
 
         // Assert
-        verify(repository, times(1)).existsById(1);
-        verify(repository, times(1)).deleteById(1);
+        assertNotNull(result);
+        assertEquals(OrderStatus.CONFIRMED, result.getStatus());
     }
 
     @Test
-    @DisplayName("Should throw exception when deleting non-existent user")
-    void testDeleteUserNotFound() {
+    @DisplayName("Should throw exception when updating status for non-existent order")
+    void testUpdateOrderStatusNotFound() {
         // Arrange
-        when(repository.existsById(999)).thenReturn(false);
+        when(orderRepository.findById(999)).thenReturn(Optional.empty());
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> userService.deleteUser(999)
+                () -> orderService.updateOrderStatus(999, "CONFIRMED")
         );
 
-        assertEquals("User not found with ID: 999", exception.getMessage());
-        verify(repository, never()).deleteById(anyInt());
+        assertEquals("Order not found", exception.getMessage());
     }
 }

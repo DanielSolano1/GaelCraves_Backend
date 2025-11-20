@@ -31,18 +31,6 @@ public class UserController {
         this.jwtService = jwtService;
     }
 
-    @PostMapping("/generateToken")
-    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
-        );
-        if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(authRequest.getUsername());
-        } else {
-            throw new UsernameNotFoundException("Invalid user request!");
-        }
-    }
-
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> getAllUsers() {
         // Never return passwords or security answers
@@ -83,10 +71,17 @@ public class UserController {
 
             User created = service.createUser(user);
 
+            // Generate JWT token
+            String token = jwtService.generateToken(created.getEmail(), created.getUserId());
+
             // Return safe response
             Map<String, Object> response = Map.of(
                     "userId", created.getUserId(),
                     "email", created.getEmail(),
+                    "firstName", created.getFirstName(),
+                    "lastName", created.getLastName(),
+                    "roles", created.getRoleNames(),
+                    "token", token,
                     "message", "User registered successfully"
             );
 
@@ -102,6 +97,8 @@ public class UserController {
         String email = body.get("email");
         String password = body.get("password");
 
+        System.out.println("🔐 Login attempt for: " + email);
+
         if (email == null || password == null) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Email and password are required"));
@@ -116,11 +113,19 @@ public class UserController {
 
         User user = userOpt.get();
 
-        // Return safe user data
+        String token = jwtService.generateToken(user.getEmail(), user.getUserId());
+
+        // Get role names as a Set<String>
+        Set<String> roleNames = user.getRoleNames();
+
+        // Return safe user data with roles as array
         Map<String, Object> response = Map.of(
                 "userId", user.getUserId(),
                 "email", user.getEmail(),
-                "message", "Login successful"
+                "firstName", user.getFirstName(),
+                "lastName", user.getLastName(),
+                "roles", new ArrayList<>(roleNames), // Convert Set to List
+                "token", token
         );
 
         return ResponseEntity.ok(response);
