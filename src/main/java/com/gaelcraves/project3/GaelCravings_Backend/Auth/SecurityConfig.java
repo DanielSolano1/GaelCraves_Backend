@@ -55,11 +55,20 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of(allowedOrigin));
+        
+        // Allow multiple origins for local development
+        cfg.setAllowedOrigins(List.of(
+            "http://localhost:8081",
+            "http://localhost:3000",
+            "http://localhost:19006",
+            allowedOrigin
+        ));
+        
         cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
-        cfg.setAllowedHeaders(List.of("Authorization","Content-Type"));
-        cfg.setExposedHeaders(List.of("Authorization"));
+        cfg.setAllowedHeaders(List.of("*")); // Allow all headers
+        cfg.setExposedHeaders(List.of("Authorization","Content-Type"));
         cfg.setAllowCredentials(true);
+        cfg.setMaxAge(3600L); // Cache preflight for 1 hour
 
         UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
         src.registerCorsConfiguration("/**", cfg);

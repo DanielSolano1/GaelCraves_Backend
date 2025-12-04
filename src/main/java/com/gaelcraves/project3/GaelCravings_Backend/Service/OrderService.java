@@ -1,5 +1,6 @@
 package com.gaelcraves.project3.GaelCravings_Backend.Service;
 
+import com.gaelcraves.project3.GaelCravings_Backend.DTO.AdminStats;
 import com.gaelcraves.project3.GaelCravings_Backend.DTO.OrderItemRequest;
 import com.gaelcraves.project3.GaelCravings_Backend.DTO.OrderStatus;
 import com.gaelcraves.project3.GaelCravings_Backend.Entity.*;
@@ -7,6 +8,9 @@ import com.gaelcraves.project3.GaelCravings_Backend.Repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -117,5 +121,51 @@ public class OrderService {
         order.setStatus(os);
 
         return order;
+    }
+
+    /**
+     * ADMIN: Get all orders in the system
+     */
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
+
+    /**
+     * ADMIN: Get all orders with a specific status
+     */
+    public List<Order> getOrdersByStatus(OrderStatus status) {
+        return orderRepository.findByStatus(status);
+    }
+
+    /**
+     * ADMIN: Simple aggregate statistics for dashboard
+     */
+    public AdminStats getAdminStats() {
+        List<Order> allOrders = orderRepository.findAll();
+
+        long pendingOrders = allOrders.stream()
+                .filter(o -> o.getStatus() == OrderStatus.PENDING)
+                .count();
+
+    LocalDate today = LocalDate.now();
+    LocalDateTime startOfDay = today.atStartOfDay();
+    LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
+        BigDecimal todayRevenue = allOrders.stream()
+        .filter(o -> o.getStatus() == OrderStatus.CONFIRMED)
+        .filter(o -> o.getOrderDate() != null &&
+            !o.getOrderDate().isBefore(startOfDay) &&
+            o.getOrderDate().isBefore(endOfDay))
+                .map(Order::getTotalAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        long totalUsers = userRepository.count();
+        long menuItems = foodItemRepository.count();
+
+        AdminStats stats = new AdminStats();
+        stats.setPendingOrders((int) pendingOrders);
+        stats.setTodayRevenue(todayRevenue);
+        stats.setTotalUsers((int) totalUsers);
+        stats.setMenuItems((int) menuItems);
+        return stats;
     }
 }

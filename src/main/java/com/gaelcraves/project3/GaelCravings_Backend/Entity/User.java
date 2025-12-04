@@ -60,7 +60,7 @@ public class User {
 
     @NotBlank(message = "Security answer is required")
     @Column(nullable = false, length = 255)
-    private String securityAnswer;
+    private String  securityAnswer;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<UserRole> userRoles = new HashSet<>();
