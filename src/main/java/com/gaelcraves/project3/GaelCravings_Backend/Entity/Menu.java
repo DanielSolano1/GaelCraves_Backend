@@ -1,6 +1,6 @@
 package com.gaelcraves.project3.GaelCravings_Backend.Entity;
 
-import com.gaelcraves.project3.GaelCravings_Backend.Entity.FoodItem;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import java.util.List;
@@ -18,6 +18,7 @@ public class Menu {
     private String name;
 
     @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<FoodItem> foodItems;
 
     public Menu() {}
