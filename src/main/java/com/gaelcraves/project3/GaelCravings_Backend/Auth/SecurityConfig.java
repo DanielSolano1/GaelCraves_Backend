@@ -1,9 +1,10 @@
 package com.gaelcraves.project3.GaelCravings_Backend.Auth;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import com.gaelcraves.project3.GaelCravings_Backend.Auth.JwtAuthenticationFilter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,10 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
-
-import java.util.List;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 public class SecurityConfig {
@@ -55,11 +54,21 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of(allowedOrigin));
+        
+        // Allow multiple origins including production Heroku URLs
+        cfg.setAllowedOrigins(List.of(
+            "http://localhost:8081",
+            "http://localhost:3000",
+            "http://localhost:19006",
+            "https://gaelcraves-frontend-7a6e5c03f69a.herokuapp.com",
+            allowedOrigin
+        ));
+        
         cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
-        cfg.setAllowedHeaders(List.of("Authorization","Content-Type"));
-        cfg.setExposedHeaders(List.of("Authorization"));
+        cfg.setAllowedHeaders(List.of("*")); // Allow all headers
+        cfg.setExposedHeaders(List.of("Authorization","Content-Type"));
         cfg.setAllowCredentials(true);
+        cfg.setMaxAge(3600L); // Cache preflight for 1 hour
 
         UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
         src.registerCorsConfiguration("/**", cfg);

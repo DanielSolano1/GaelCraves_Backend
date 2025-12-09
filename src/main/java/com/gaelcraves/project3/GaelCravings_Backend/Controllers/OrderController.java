@@ -1,6 +1,8 @@
 package com.gaelcraves.project3.GaelCravings_Backend.Controllers;
 
+import com.gaelcraves.project3.GaelCravings_Backend.DTO.AdminStats;
 import com.gaelcraves.project3.GaelCravings_Backend.DTO.OrderItemRequest;
+import com.gaelcraves.project3.GaelCravings_Backend.DTO.OrderStatus;
 import com.gaelcraves.project3.GaelCravings_Backend.Entity.Order;
 import com.gaelcraves.project3.GaelCravings_Backend.Service.OrderService;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,18 @@ public class OrderController {
 
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
+    }
+
+    /**
+     * ADMIN: Get all orders
+     */
+    @GetMapping
+    public ResponseEntity<List<Order>> getAllOrders(@RequestParam(value = "status", required = false) String status) {
+        if (status != null) {
+            OrderStatus os = OrderStatus.valueOf(status);
+            return ResponseEntity.ok(orderService.getOrdersByStatus(os));
+        }
+        return ResponseEntity.ok(orderService.getAllOrders());
     }
 
     /**
@@ -121,5 +135,14 @@ public class OrderController {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", e.getMessage()));
         }
+    }
+
+    /**
+     * ADMIN: Dashboard statistics
+     */
+    @GetMapping("/admin/stats")
+    public ResponseEntity<AdminStats> getAdminStats() {
+        AdminStats stats = orderService.getAdminStats();
+        return ResponseEntity.ok(stats);
     }
 }
