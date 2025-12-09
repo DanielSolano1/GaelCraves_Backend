@@ -66,18 +66,25 @@ public class SecurityConfig {
         
         // Parse multiple origins from environment
         String[] origins = allowedOrigin.split(",");
-        List<String> allowedOriginsList = new java.util.ArrayList<>(List.of(origins));
+        List<String> allowedOriginsList = new java.util.ArrayList<>();
+        
+        for (String origin : origins) {
+            String trimmed = origin.trim();
+            if (!trimmed.isEmpty()) {
+                allowedOriginsList.add(trimmed);
+            }
+        }
+        
+        // Always allow production Heroku frontend
+        if (!allowedOriginsList.contains("https://gaelcraves-frontend-7a6e5c03f69a.herokuapp.com")) {
+            allowedOriginsList.add("https://gaelcraves-frontend-7a6e5c03f69a.herokuapp.com");
+        }
         
         // Always allow localhost for development
-        if (!allowedOriginsList.contains("http://localhost:8081")) {
-            allowedOriginsList.add("http://localhost:8081");
-        }
-        if (!allowedOriginsList.contains("http://localhost:3000")) {
-            allowedOriginsList.add("http://localhost:3000");
-        }
-        if (!allowedOriginsList.contains("http://localhost:19006")) {
-            allowedOriginsList.add("http://localhost:19006");
-        }
+        allowedOriginsList.add("http://localhost:8081");
+        allowedOriginsList.add("http://localhost:3000");
+        allowedOriginsList.add("http://localhost:19006");
+        allowedOriginsList.add("http://127.0.0.1:8081");
         
         cfg.setAllowedOrigins(allowedOriginsList);
         cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
