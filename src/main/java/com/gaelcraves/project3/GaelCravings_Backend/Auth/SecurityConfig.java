@@ -40,6 +40,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/login", "/api/users", "/api/v1/auth/google").permitAll()
                         .requestMatchers("/api/users/security-question", "/api/users/reset-password").permitAll()
 
+                        // Admin endpoints (require authentication)
+                        .requestMatchers("/api/orders/admin/**").authenticated()
+
                         // Protected endpoints (require authentication)
                         .requestMatchers("/api/users/**").authenticated()
 

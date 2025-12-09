@@ -141,31 +141,46 @@ public class OrderService {
      * ADMIN: Simple aggregate statistics for dashboard
      */
     public AdminStats getAdminStats() {
-        List<Order> allOrders = orderRepository.findAll();
+        try {
+            List<Order> allOrders = orderRepository.findAll();
 
-        long pendingOrders = allOrders.stream()
-                .filter(o -> o.getStatus() == OrderStatus.PENDING)
-                .count();
+            long pendingOrders = allOrders.stream()
+                    .filter(o -> o != null && o.getStatus() == OrderStatus.PENDING)
+                    .count();
 
-    LocalDate today = LocalDate.now();
-    LocalDateTime startOfDay = today.atStartOfDay();
-    LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
-        BigDecimal todayRevenue = allOrders.stream()
-        .filter(o -> o.getStatus() == OrderStatus.CONFIRMED)
-        .filter(o -> o.getOrderDate() != null &&
-            !o.getOrderDate().isBefore(startOfDay) &&
-            o.getOrderDate().isBefore(endOfDay))
-                .map(Order::getTotalAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            LocalDate today = LocalDate.now();
+            LocalDateTime startOfDay = today.atStartOfDay();
+            LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
+            
+            BigDecimal todayRevenue = allOrders.stream()
+                    .filter(o -> o != null && o.getStatus() == OrderStatus.CONFIRMED)
+                    .filter(o -> o.getOrderDate() != null &&
+                        !o.getOrderDate().isBefore(startOfDay) &&
+                        o.getOrderDate().isBefore(endOfDay))
+                    .map(o -> o.getTotalAmount() != null ? o.getTotalAmount() : BigDecimal.ZERO)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        long totalUsers = userRepository.count();
-        long menuItems = foodItemRepository.count();
+            long totalUsers = userRepository.count();
+            long menuItems = foodItemRepository.count();
 
-        AdminStats stats = new AdminStats();
-        stats.setPendingOrders((int) pendingOrders);
-        stats.setTodayRevenue(todayRevenue);
-        stats.setTotalUsers((int) totalUsers);
-        stats.setMenuItems((int) menuItems);
-        return stats;
+            AdminStats stats = new AdminStats();
+            stats.setPendingOrders((int) pendingOrders);
+            stats.setTodayRevenue(todayRevenue != null ? todayRevenue : BigDecimal.ZERO);
+            stats.setTotalUsers((int) totalUsers);
+            stats.setMenuItems((int) menuItems);
+            return stats;
+            
+        } catch (Exception e) {
+            // Log the error and return default stats
+            System.err.println("Error calculating admin stats: " + e.getMessage());
+            e.printStackTrace();
+            
+            AdminStats defaultStats = new AdminStats();
+            defaultStats.setPendingOrders(0);
+            defaultStats.setTodayRevenue(BigDecimal.ZERO);
+            defaultStats.setTotalUsers(0);
+            defaultStats.setMenuItems(0);
+            return defaultStats;
+        }
     }
 }
