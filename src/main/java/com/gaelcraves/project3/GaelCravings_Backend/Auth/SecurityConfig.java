@@ -1,6 +1,5 @@
 package com.gaelcraves.project3.GaelCravings_Backend.Auth;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
