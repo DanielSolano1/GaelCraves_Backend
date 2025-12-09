@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/security-question", "/api/users/reset-password").permitAll()
                         .requestMatchers("/api/menus", "/api/menus/**").permitAll()
                         .requestMatchers("/api/food-items", "/api/food-items/**").permitAll()
+                        .requestMatchers("/api/orders/create-payment-intent", "/api/orders/payment").permitAll()
                         
                         // Admin-only endpoints
                         .requestMatchers("/api/orders/admin/**").hasRole("ADMIN")
