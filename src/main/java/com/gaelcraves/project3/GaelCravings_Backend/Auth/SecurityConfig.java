@@ -37,10 +37,11 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints (no authentication required)
-                        .requestMatchers("/api/users/login", "/api/users", "/api/v1/auth/google").permitAll()
+                        .requestMatchers("/", "/error", "/health", "/actuator/health").permitAll()
+                        .requestMatchers("/api/users/login", "/api/users", "/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/users/security-question", "/api/users/reset-password").permitAll()
-                        .requestMatchers("/api/menus", "/api/menus/**").permitAll() // Public menu viewing
-                        .requestMatchers("/api/food-items", "/api/food-items/**").permitAll() // Public food items
+                        .requestMatchers("/api/menus", "/api/menus/**").permitAll()
+                        .requestMatchers("/api/food-items", "/api/food-items/**").permitAll()
                         
                         // Admin-only endpoints
                         .requestMatchers("/api/orders/admin/**").hasRole("ADMIN")
@@ -51,8 +52,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/orders/**").authenticated()
                         .requestMatchers("/api/addresses/**").authenticated()
 
-                        // Deny all other requests
-                        .anyRequest().authenticated()
+                        // Allow all other requests
+                        .anyRequest().permitAll()
                 )
                 // Add JWT filter before the default authentication filter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
