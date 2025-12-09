@@ -50,3 +50,14 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// Disable plain jar (only create bootJar for Heroku)
+jar {
+	enabled = false
+}
+
+// Ensure bootJar is the only JAR created
+bootJar {
+	enabled = true
+	archiveClassifier = ''
+}
