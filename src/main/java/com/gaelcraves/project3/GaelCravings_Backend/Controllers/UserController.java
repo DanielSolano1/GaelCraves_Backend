@@ -1,21 +1,28 @@
 package com.gaelcraves.project3.GaelCravings_Backend.Controllers;
 
-import com.gaelcraves.project3.GaelCravings_Backend.Auth.Service.JwTService;
-import com.gaelcraves.project3.GaelCravings_Backend.Entity.AuthRequest;
-import com.gaelcraves.project3.GaelCravings_Backend.Entity.User;
-import com.gaelcraves.project3.GaelCravings_Backend.Service.UserService;
-import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
-import java.util.*;
+import com.gaelcraves.project3.GaelCravings_Backend.Auth.Service.JwTService;
+import com.gaelcraves.project3.GaelCravings_Backend.Entity.User;
+import com.gaelcraves.project3.GaelCravings_Backend.Service.UserService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/users")
@@ -71,8 +78,11 @@ public class UserController {
 
             User created = service.createUser(user);
 
-            // Generate JWT token
-            String token = jwtService.generateToken(created.getEmail(), created.getUserId());
+            // Get role names as a list
+            List<String> roleNames = new ArrayList<>(created.getRoleNames());
+
+            // Generate JWT token with roles
+            String token = jwtService.generateToken(created.getEmail(), created.getUserId(), roleNames);
 
             // Return safe response
             Map<String, Object> response = Map.of(
@@ -80,7 +90,7 @@ public class UserController {
                     "email", created.getEmail(),
                     "firstName", created.getFirstName(),
                     "lastName", created.getLastName(),
-                    "roles", created.getRoleNames(),
+                    "roles", roleNames,
                     "token", token,
                     "message", "User registered successfully"
             );
@@ -113,10 +123,11 @@ public class UserController {
 
         User user = userOpt.get();
 
-        String token = jwtService.generateToken(user.getEmail(), user.getUserId());
+        // Get role names as a list
+        List<String> roleNames = new ArrayList<>(user.getRoleNames());
 
-        // Get role names as a Set<String>
-        Set<String> roleNames = user.getRoleNames();
+        // Generate JWT token with roles
+        String token = jwtService.generateToken(user.getEmail(), user.getUserId(), roleNames);
 
         // Return safe user data with roles as array
         Map<String, Object> response = Map.of(
@@ -124,7 +135,7 @@ public class UserController {
                 "email", user.getEmail(),
                 "firstName", user.getFirstName(),
                 "lastName", user.getLastName(),
-                "roles", new ArrayList<>(roleNames), // Convert Set to List
+                "roles", roleNames,
                 "token", token
         );
 

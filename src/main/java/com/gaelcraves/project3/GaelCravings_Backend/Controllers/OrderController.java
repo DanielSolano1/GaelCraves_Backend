@@ -1,18 +1,14 @@
 package com.gaelcraves.project3.GaelCravings_Backend.Controllers;
 
+import com.gaelcraves.project3.GaelCravings_Backend.DTO.AdminStats;
 import com.gaelcraves.project3.GaelCravings_Backend.DTO.OrderItemRequest;
+import com.gaelcraves.project3.GaelCravings_Backend.DTO.OrderStatus;
 import com.gaelcraves.project3.GaelCravings_Backend.Entity.Order;
 import com.gaelcraves.project3.GaelCravings_Backend.Service.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +23,27 @@ public class OrderController {
 
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
+    }
+
+    /**
+     * ADMIN: Get all orders (with optional status filter)
+     */
+    @GetMapping
+    public ResponseEntity<List<Order>> getAllOrders(@RequestParam(value = "status", required = false) String status) {
+        if (status != null) {
+            OrderStatus os = OrderStatus.valueOf(status);
+            return ResponseEntity.ok(orderService.getOrdersByStatus(os));
+        }
+        return ResponseEntity.ok(orderService.getAllOrders());
+    }
+
+    /**
+     * ADMIN: Dashboard statistics
+     */
+    @GetMapping("/admin/stats")
+    public ResponseEntity<AdminStats> getAdminStats() {
+        AdminStats stats = orderService.getAdminStats();
+        return ResponseEntity.ok(stats);
     }
 
     /**
@@ -58,6 +75,35 @@ public class OrderController {
     }
 
     /**
+     * Process payment for order (mock implementation)
+     */
+    @PostMapping("/payment")
+    @SuppressWarnings("unused")
+    public ResponseEntity<?> processPayment(@RequestBody Map<String, Object> request) {
+        try {
+            String mealTitle = (String) request.get("mealTitle");
+            String mealPrice = (String) request.get("mealPrice");
+            String orderTime = (String) request.get("orderTime");
+            String specialNotes = (String) request.get("specialNotes");
+
+            Map<String, Object> paymentResult = Map.of(
+                    "success", true,
+                    "orderId", "GC" + System.currentTimeMillis() % 100000,
+                    "status", "CONFIRMED",
+                    "amount", mealPrice,
+                    "mealTitle", mealTitle,
+                    "orderTime", orderTime != null ? orderTime : "ASAP",
+                    "specialNotes", specialNotes != null ? specialNotes : "None",
+                    "message", "Payment processed successfully"
+            );
+
+            return ResponseEntity.ok(paymentResult);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Payment processing failed: " + e.getMessage()));
+        }
+    }
+
+    /**
      * Create a new order
      */
     @PostMapping
@@ -69,6 +115,7 @@ public class OrderController {
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> items = (List<Map<String, Object>>) request.get("items");
 
+            // Convert to OrderItemRequest list
             List<OrderItemRequest> orderItems = items.stream()
                     .map(item -> {
                         OrderItemRequest req = new OrderItemRequest();
@@ -151,35 +198,6 @@ public class OrderController {
             return ResponseEntity.ok(updated);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
-    }
-
-    /**
-     * Process payment for order (mock implementation)
-     */
-    @PostMapping("/payment")
-    @SuppressWarnings("unused")
-    public ResponseEntity<?> processPayment(@RequestBody Map<String, Object> request) {
-        try {
-            String mealTitle = (String) request.get("mealTitle");
-            String mealPrice = (String) request.get("mealPrice");
-            String orderTime = (String) request.get("orderTime");
-            String specialNotes = (String) request.get("specialNotes");
-
-            Map<String, Object> paymentResult = Map.of(
-                    "success", true,
-                    "orderId", "GC" + System.currentTimeMillis() % 100000,
-                    "status", "CONFIRMED",
-                    "amount", mealPrice,
-                    "mealTitle", mealTitle,
-                    "orderTime", orderTime != null ? orderTime : "ASAP",
-                    "specialNotes", specialNotes != null ? specialNotes : "None",
-                    "message", "Payment processed successfully"
-            );
-
-            return ResponseEntity.ok(paymentResult);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Payment processing failed: " + e.getMessage()));
         }
     }
 }

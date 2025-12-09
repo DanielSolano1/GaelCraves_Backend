@@ -1,18 +1,19 @@
 package com.gaelcraves.project3.GaelCravings_Backend.Auth;
 
-import com.gaelcraves.project3.GaelCravings_Backend.Auth.Service.JwTService;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-import java.util.ArrayList;
+import com.gaelcraves.project3.GaelCravings_Backend.Auth.Service.JwTService;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -51,12 +52,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // Validate token
                 if (jwtService.validateToken(jwt)) {
+                    // Extract roles from token
+                    java.util.List<String> roles = jwtService.extractRoles(jwt);
+                    
+                    // Convert roles to authorities
+                    java.util.List<org.springframework.security.core.authority.SimpleGrantedAuthority> authorities = 
+                        roles.stream()
+                            .map(role -> new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role))
+                            .collect(java.util.stream.Collectors.toList());
+                    
                     // Create authentication token
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
                                     userEmail,
                                     null,
-                                    new ArrayList<>() // Empty authorities for now
+                                    authorities
                             );
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

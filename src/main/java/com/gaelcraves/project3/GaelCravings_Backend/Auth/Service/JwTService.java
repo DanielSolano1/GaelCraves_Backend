@@ -1,18 +1,20 @@
 package com.gaelcraves.project3.GaelCravings_Backend.Auth.Service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.SecretKey;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JwTService {
@@ -41,6 +43,14 @@ public class JwTService {
         return createToken(claims, email);
     }
 
+    // Generate token with roles
+    public String generateToken(String email, Integer userId, java.util.List<String> roles) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
+        claims.put("roles", roles);
+        return createToken(claims, email);
+    }
+
     private String createToken(Map<String, Object> claims, String subject) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + JWT_TOKEN_VALIDITY);
@@ -62,6 +72,18 @@ public class JwTService {
     // Extract userId from token
     public Integer extractUserId(String token) {
         return extractClaim(token, claims -> claims.get("userId", Integer.class));
+    }
+
+    // Extract roles from token
+    @SuppressWarnings("unchecked")
+    public java.util.List<String> extractRoles(String token) {
+        return extractClaim(token, claims -> {
+            Object roles = claims.get("roles");
+            if (roles instanceof java.util.List) {
+                return (java.util.List<String>) roles;
+            }
+            return new java.util.ArrayList<>();
+        });
     }
 
     // Extract expiration date
