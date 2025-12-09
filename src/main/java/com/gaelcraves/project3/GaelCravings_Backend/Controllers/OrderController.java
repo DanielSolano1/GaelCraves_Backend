@@ -26,7 +26,7 @@ public class OrderController {
     /**
      * ADMIN: Get all orders
      */
-    @GetMapping
+    @GetMapping("/admin/all")
     public ResponseEntity<List<Order>> getAllOrders(@RequestParam(value = "status", required = false) String status) {
         if (status != null) {
             OrderStatus os = OrderStatus.valueOf(status);
