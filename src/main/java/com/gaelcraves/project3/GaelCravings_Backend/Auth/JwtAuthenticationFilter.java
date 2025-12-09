@@ -55,11 +55,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     // Extract roles from token
                     java.util.List<String> roles = jwtService.extractRoles(jwt);
                     
-                    // Convert roles to authorities
+                    logger.info("JWT Auth - User: " + userEmail + ", Roles from token: " + roles);
+                    
+                    // Convert roles to authorities (add ROLE_ prefix if not present)
                     java.util.List<org.springframework.security.core.authority.SimpleGrantedAuthority> authorities = 
                         roles.stream()
-                            .map(role -> new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role))
+                            .map(role -> {
+                                String authority = role.startsWith("ROLE_") ? role : "ROLE_" + role;
+                                logger.info("Creating authority: " + authority);
+                                return new org.springframework.security.core.authority.SimpleGrantedAuthority(authority);
+                            })
                             .collect(java.util.stream.Collectors.toList());
+                    
+                    logger.info("Final authorities: " + authorities);
                     
                     // Create authentication token
                     UsernamePasswordAuthenticationToken authToken =
@@ -73,11 +81,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     // Set authentication in security context
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                    
+                    logger.info("Authentication set in SecurityContext for: " + userEmail);
                 }
             }
         } catch (Exception e) {
             // Token is invalid, continue without authentication
-            logger.error("JWT validation failed: " + e.getMessage());
+            logger.error("JWT validation failed: " + e.getMessage(), e);
         }
 
         filterChain.doFilter(request, response);
