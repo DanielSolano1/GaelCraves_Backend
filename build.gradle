@@ -20,6 +20,16 @@ configurations {
 	}
 }
 
+test {
+	useJUnitPlatform()
+
+	testLogging {
+		events "PASSED", "FAILED", "SKIPPED"
+		showStandardStreams = true
+	}
+}
+
+
 repositories {
 	mavenCentral()
 }
