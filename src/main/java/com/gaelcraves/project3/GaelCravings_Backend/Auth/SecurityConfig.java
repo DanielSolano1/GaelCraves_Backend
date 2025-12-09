@@ -49,9 +49,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/food-items", "/api/food-items/**").permitAll()
                         .requestMatchers("/api/orders/create-payment-intent", "/api/orders/payment").permitAll()
                         
-                        // Admin-only endpoints
-                        .requestMatchers("/api/orders/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // Admin-only endpoints (allow both ADMIN and GAEL_HIMSELF roles)
+                        .requestMatchers("/api/orders/admin/**").hasAnyRole("ADMIN", "GAEL_HIMSELF")
+                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "GAEL_HIMSELF")
 
                         // Protected endpoints (require authentication)
                         .requestMatchers("/api/users/**").authenticated()
