@@ -41,6 +41,14 @@ public class JwTService {
         return createToken(claims, email);
     }
 
+    // Generate token with roles
+    public String generateToken(String email, Integer userId, java.util.List<String> roles) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
+        claims.put("roles", roles);
+        return createToken(claims, email);
+    }
+
     private String createToken(Map<String, Object> claims, String subject) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + JWT_TOKEN_VALIDITY);
@@ -62,6 +70,18 @@ public class JwTService {
     // Extract userId from token
     public Integer extractUserId(String token) {
         return extractClaim(token, claims -> claims.get("userId", Integer.class));
+    }
+
+    // Extract roles from token
+    @SuppressWarnings("unchecked")
+    public java.util.List<String> extractRoles(String token) {
+        return extractClaim(token, claims -> {
+            Object roles = claims.get("roles");
+            if (roles instanceof java.util.List) {
+                return (java.util.List<String>) roles;
+            }
+            return new java.util.ArrayList<>();
+        });
     }
 
     // Extract expiration date

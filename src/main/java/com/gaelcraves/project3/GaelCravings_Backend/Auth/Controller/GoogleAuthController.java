@@ -12,10 +12,16 @@ import java.util.Map;
 public class GoogleAuthController {
 
     private final RestTemplate restTemplate = new RestTemplate();
+    
+    @org.springframework.beans.factory.annotation.Value("${google.client.id}")
+    private String clientId;
+    
+    @org.springframework.beans.factory.annotation.Value("${google.client.secret}")
+    private String clientSecret;
 
     // Accepts a JSON body with { code, redirectUri } and performs the
     // server-side exchange with Google's token endpoint using the client
-    // secret stored in environment variables (Client_ID and Client_Secret).
+    // secret stored in environment variables (GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET).
     @PostMapping(path = "/api/v1/auth/google", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> exchangeCode(@RequestBody Map<String, String> body) {
         String code = body.get("code");
@@ -25,9 +31,7 @@ public class GoogleAuthController {
             return ResponseEntity.badRequest().body(Map.of("error", "code and redirectUri are required"));
         }
 
-        String clientId = System.getenv("Client_ID");
-        String clientSecret = System.getenv("Client_Secret");
-        if (clientId == null || clientSecret == null) {
+        if (clientId == null || clientSecret == null || clientId.isEmpty() || clientSecret.isEmpty()) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Missing Google client credentials on the server"));
         }

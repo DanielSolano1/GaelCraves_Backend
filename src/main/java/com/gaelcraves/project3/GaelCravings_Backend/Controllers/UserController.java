@@ -71,8 +71,11 @@ public class UserController {
 
             User created = service.createUser(user);
 
-            // Generate JWT token
-            String token = jwtService.generateToken(created.getEmail(), created.getUserId());
+            // Get role names as a list
+            List<String> roleNames = new ArrayList<>(created.getRoleNames());
+
+            // Generate JWT token with roles
+            String token = jwtService.generateToken(created.getEmail(), created.getUserId(), roleNames);
 
             // Return safe response
             Map<String, Object> response = Map.of(
@@ -80,7 +83,7 @@ public class UserController {
                     "email", created.getEmail(),
                     "firstName", created.getFirstName(),
                     "lastName", created.getLastName(),
-                    "roles", created.getRoleNames(),
+                    "roles", roleNames,
                     "token", token,
                     "message", "User registered successfully"
             );
@@ -113,10 +116,11 @@ public class UserController {
 
         User user = userOpt.get();
 
-        String token = jwtService.generateToken(user.getEmail(), user.getUserId());
+        // Get role names as a list
+        List<String> roleNames = new ArrayList<>(user.getRoleNames());
 
-        // Get role names as a Set<String>
-        Set<String> roleNames = user.getRoleNames();
+        // Generate JWT token with roles
+        String token = jwtService.generateToken(user.getEmail(), user.getUserId(), roleNames);
 
         // Return safe user data with roles as array
         Map<String, Object> response = Map.of(
@@ -124,7 +128,7 @@ public class UserController {
                 "email", user.getEmail(),
                 "firstName", user.getFirstName(),
                 "lastName", user.getLastName(),
-                "roles", new ArrayList<>(roleNames), // Convert Set to List
+                "roles", roleNames,
                 "token", token
         );
 

@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -37,21 +36,23 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No sessions, use JWT
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // Allow CORS preflight requests
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        
                         // Public endpoints (no authentication required)
                         .requestMatchers("/api/users/login", "/api/users", "/api/v1/auth/google").permitAll()
                         .requestMatchers("/api/users/security-question", "/api/users/reset-password").permitAll()
-
-                        // Admin endpoints (require authentication)
-                        .requestMatchers("/api/orders/admin/**").authenticated()
+                        .requestMatchers("/api/menus", "/api/menus/**").permitAll() // Public menu viewing
+                        .requestMatchers("/api/food-items", "/api/food-items/**").permitAll() // Public food items
+                        
+                        // Admin-only endpoints
+                        .requestMatchers("/api/orders/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // Protected endpoints (require authentication)
                         .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/orders/**").authenticated()
+                        .requestMatchers("/api/addresses/**").authenticated()
 
-                        // Allow all other requests for now
-                        .anyRequest().permitAll()
+                        // Deny all other requests
+                        .anyRequest().authenticated()
                 )
                 // Add JWT filter before the default authentication filter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -62,20 +63,27 @@ public class SecurityConfig {
     private CorsConfigurationSource corsSource() {
         CorsConfiguration cfg = new CorsConfiguration();
         
-        // Allow multiple origins including production Heroku URLs
-        cfg.setAllowedOrigins(List.of(
-            "http://localhost:8081",
-            "http://localhost:3000",
-            "http://localhost:19006",
-            "https://gaelcraves-frontend-7a6e5c03f69a.herokuapp.com",
-            allowedOrigin
-        ));
+        // Parse multiple origins from environment
+        String[] origins = allowedOrigin.split(",");
+        List<String> allowedOriginsList = new java.util.ArrayList<>(List.of(origins));
         
+        // Always allow localhost for development
+        if (!allowedOriginsList.contains("http://localhost:8081")) {
+            allowedOriginsList.add("http://localhost:8081");
+        }
+        if (!allowedOriginsList.contains("http://localhost:3000")) {
+            allowedOriginsList.add("http://localhost:3000");
+        }
+        if (!allowedOriginsList.contains("http://localhost:19006")) {
+            allowedOriginsList.add("http://localhost:19006");
+        }
+        
+        cfg.setAllowedOrigins(allowedOriginsList);
         cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
-        cfg.setAllowedHeaders(List.of("*")); // Allow all headers
+        cfg.setAllowedHeaders(List.of("*"));
         cfg.setExposedHeaders(List.of("Authorization","Content-Type"));
         cfg.setAllowCredentials(true);
-        cfg.setMaxAge(3600L); // Cache preflight for 1 hour
+        cfg.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
         src.registerCorsConfiguration("/**", cfg);
