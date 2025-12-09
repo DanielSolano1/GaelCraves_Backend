@@ -13,10 +13,10 @@ public class GoogleAuthController {
 
     private final RestTemplate restTemplate = new RestTemplate();
     
-    @org.springframework.beans.factory.annotation.Value("${google.client.id}")
+    @org.springframework.beans.factory.annotation.Value("${google.client.id:}")
     private String clientId;
     
-    @org.springframework.beans.factory.annotation.Value("${google.client.secret}")
+    @org.springframework.beans.factory.annotation.Value("${google.client.secret:}")
     private String clientSecret;
 
     // Accepts a JSON body with { code, redirectUri } and performs the
