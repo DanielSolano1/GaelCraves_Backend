@@ -1,5 +1,6 @@
 package com.gaelcraves.project3.GaelCravings_Backend.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,6 +18,15 @@ public class FoodItem {
     @Column(nullable = false)
     private Integer calories;
 
+    @Column(name = "protein")
+    private Integer protein;
+
+    @Column(name = "carbohydrates")
+    private Integer carbohydrates;
+
+    @Column(name = "fat")
+    private Integer fat;
+
     @NotNull
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
@@ -25,8 +35,21 @@ public class FoodItem {
     @Column(nullable = false)
     private String name;
 
+    @Column(length = 1000)
+    private String description;
+
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
+    @Column(length = 100)
+    private String category;
+
+    @Column(name = "is_available")
+    private Boolean isAvailable = true;
+
     @ManyToOne
     @JoinColumn(name = "menu_id")
+    @JsonBackReference
     private Menu menu;
 
 
@@ -38,6 +61,15 @@ public class FoodItem {
     public Integer getCalories() { return calories; }
     public void setCalories(Integer calories) { this.calories = calories; }
 
+    public Integer getProtein() { return protein; }
+    public void setProtein(Integer protein) { this.protein = protein; }
+
+    public Integer getCarbohydrates() { return carbohydrates; }
+    public void setCarbohydrates(Integer carbohydrates) { this.carbohydrates = carbohydrates; }
+
+    public Integer getFat() { return fat; }
+    public void setFat(Integer fat) { this.fat = fat; }
+
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal price) { this.price = price; }
 
@@ -48,6 +80,19 @@ public class FoodItem {
     public void setName(String name) {
         this.name = name;
     }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+
+    public Boolean getIsAvailable() { return isAvailable; }
+    public void setIsAvailable(Boolean isAvailable) { this.isAvailable = isAvailable; }
+
     public Menu getMenu() { return menu; }
     public void setMenu(Menu menu) { this.menu = menu; }
 }
