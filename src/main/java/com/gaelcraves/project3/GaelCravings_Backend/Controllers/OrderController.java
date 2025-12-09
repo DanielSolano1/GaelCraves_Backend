@@ -1,6 +1,5 @@
 package com.gaelcraves.project3.GaelCravings_Backend.Controllers;
 
-import com.gaelcraves.project3.GaelCravings_Backend.DTO.AdminStats;
 import com.gaelcraves.project3.GaelCravings_Backend.DTO.OrderItemRequest;
 import com.gaelcraves.project3.GaelCravings_Backend.DTO.OrderStatus;
 import com.gaelcraves.project3.GaelCravings_Backend.Entity.Order;
@@ -135,14 +134,5 @@ public class OrderController {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", e.getMessage()));
         }
-    }
-
-    /**
-     * ADMIN: Dashboard statistics
-     */
-    @GetMapping("/admin/stats")
-    public ResponseEntity<AdminStats> getAdminStats() {
-        AdminStats stats = orderService.getAdminStats();
-        return ResponseEntity.ok(stats);
     }
 }
