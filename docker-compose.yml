@@ -13,5 +13,6 @@ services:
       - supaAPI=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmbXp0Y2ZxcnZpbnB3eHFxd3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3NTgzMTksImV4cCI6MjA3NzMzNDMxOX0.6cn2PUaBTK6T9_upcSU-Xg0E3frNG3Ub7uUeFyDIXRM
       - FRONTEND_ORIGIN=http://localhost:5173
       - APP_JWT_SECRET=dGVzdC1qd3Qtc2VjcmV0LWtleS1mb3ItZGV2ZWxvcG1lbnQtb25seQ==
+      - GITHUB_CLIENT_SECRET=4c7e481df521d8d432a3a7024dcdc6d788ed9a2f
     network_mode: bridge
     restart: unless-stopped
