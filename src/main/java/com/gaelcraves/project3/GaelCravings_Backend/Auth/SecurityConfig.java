@@ -16,6 +16,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -37,11 +38,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsSource()))
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // No sessions, use JWT
+                // Allow sessions when required (needed for OAuth2 login),
+                // while API endpoints still primarily use JWT
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints (no authentication required)
-                        .requestMatchers("/", "/error", "/health", "/actuator/health").permitAll()
+                .requestMatchers("/", "/error", "/health", "/actuator/health").permitAll()
+                // OAuth2 login endpoints
+                .requestMatchers("/login", "/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers("/api/users/login", "/api/users", "/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/users/security-question", "/api/users/reset-password").permitAll()
                         .requestMatchers("/api/menus", "/api/menus/**").permitAll()
@@ -60,6 +65,10 @@ public class SecurityConfig {
                         // Allow all other requests
                         .anyRequest().permitAll()
                 )
+        .oauth2Login(oauth -> oauth
+            .loginPage("/login")
+            .defaultSuccessUrl("http://localhost:8081/oauth-success", true)
+        )
                 // Add JWT filter before the default authentication filter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -125,6 +134,12 @@ public class SecurityConfig {
                         .exposedHeaders("Authorization", "Content-Type")
                         .allowCredentials(true)
                         .maxAge(3600);
+            }
+
+            @Override
+            public void addViewControllers(ViewControllerRegistry registry) {
+                // Forward /login to the static login.html page
+                registry.addViewController("/login").setViewName("forward:/login.html");
             }
         };
     }
