@@ -13,7 +13,11 @@ import org.springframework.test.context.TestPropertySource;
 	"app.jwt.secret=dGVzdC1qd3Qtc2VjcmV0LWtleS1mb3ItZGV2ZWxvcG1lbnQtb25seQ==",
 	"app.cors.allowed-origin=http://localhost:3000",
 	"supabase.project.url=http://localhost",
-	"supabase.api.key=test-key"
+	"supabase.api.key=test-key",
+	// Dummy GitHub OAuth client for tests so ClientRegistrationRepository exists
+	"spring.security.oauth2.client.registration.github.client-id=test-client-id",
+	"spring.security.oauth2.client.registration.github.client-secret=test-client-secret",
+	"spring.security.oauth2.client.registration.github.scope=read:user,user:email"
 })
 class GaelCravingsBackendApplicationTests {
 
